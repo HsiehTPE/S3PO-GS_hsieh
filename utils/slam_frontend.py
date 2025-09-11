@@ -9,7 +9,7 @@ from gaussian_splatting.gaussian_renderer import render
 from gaussian_splatting.utils.graphics_utils import getProjectionMatrix2, getWorld2View2
 from gui import gui_utils
 from utils.camera_utils import Camera
-from utils.eval_utils import eval_ate, save_gaussians
+from utils.eval_utils import eval_ate, save_gaussians , eval_ate_all  # eval_ate_all is newly added
 from utils.logging_utils import Log
 from utils.multiprocessing_utils import clone_obj
 from utils.pose_utils import update_pose
@@ -406,6 +406,15 @@ class FrontEnd(mp.Process):
                 if cur_frame_idx >= len(self.dataset):  # If current frame index exceeds dataset length, evaluate results, save, and exit the loop
                     if self.save_results:
                         eval_ate(
+                            self.cameras,
+                            self.kf_indices,
+                            self.save_dir,
+                            0,
+                            final=True,
+                            monocular=self.monocular,
+                        )
+                        # save all frames trajs
+                        eval_ate_all(
                             self.cameras,
                             self.kf_indices,
                             self.save_dir,

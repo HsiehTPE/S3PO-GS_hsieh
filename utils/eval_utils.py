@@ -124,6 +124,69 @@ def eval_ate(frames, kf_ids, save_dir, iterations, final=False, monocular=False,
     wandb.log({"frame_idx": latest_frame_idx, "ate": ate})
     return ate
 
+def eval_ate_all(frames, kf_ids, save_dir, iterations, final=False, monocular=False, BA=False):
+    trj_data = dict()
+    latest_frame_idx = kf_ids[-1] + 2 if final else kf_ids[-1] + 1
+    #latest_frame_idx = len(frames) if final else kf_ids[-1] + 1
+    trj_id, trj_est, trj_gt = [], [], []
+    trj_est_np, trj_gt_np = [], []
+
+    def gen_pose_matrix(R, T):
+        pose = np.eye(4)
+        pose[0:3, 0:3] = R.cpu().numpy()
+        pose[0:3, 3] = T.cpu().numpy()
+        return pose
+
+    # for kf_id in kf_ids:
+    # #for kf_id in range(latest_frame_idx):
+    #     #print(kf_id)
+    #     kf = frames[kf_id]
+    #     pose_est = np.linalg.inv(gen_pose_matrix(kf.R, kf.T))
+    #     pose_gt = np.linalg.inv(gen_pose_matrix(kf.R_gt, kf.T_gt))
+
+    #     trj_id.append(frames[kf_id].uid)
+    #     trj_est.append(pose_est.tolist())
+    #     trj_gt.append(pose_gt.tolist())
+
+    #     trj_est_np.append(pose_est)
+    #     trj_gt_np.append(pose_gt)
+    for idx in range(len(frames)):
+        kf = frames[idx]
+        pose_est = np.linalg.inv(gen_pose_matrix(kf.R, kf.T))
+        pose_gt = np.linalg.inv(gen_pose_matrix(kf.R_gt, kf.T_gt))
+
+        trj_id.append(frames[idx].uid)
+        trj_est.append(pose_est.tolist())
+        trj_gt.append(pose_gt.tolist())
+
+        trj_est_np.append(pose_est)
+        trj_gt_np.append(pose_gt)
+
+    trj_data["trj_id"] = trj_id
+    trj_data["trj_est"] = trj_est
+    trj_data["trj_gt"] = trj_gt
+
+    plot_dir = os.path.join(save_dir, "plot_all_frames")
+    mkdir_p(plot_dir)
+
+    label_evo = "final_all_frames"
+    
+    #label_evo = "final" if final else "{:04}".format(iterations)
+    with open(
+        os.path.join(plot_dir, f"trj_{label_evo}.json"), "w", encoding="utf-8"
+    ) as f:
+        json.dump(trj_data, f, indent=4)
+
+    ate = evaluate_evo(
+        poses_gt=trj_gt_np,
+        poses_est=trj_est_np,
+        plot_dir=plot_dir,
+        label=label_evo,
+        monocular=monocular,
+    )
+    wandb.log({"frame_idx": latest_frame_idx, "ate": ate})
+    return ate
+
 def eval_rendering(
     frames,
     gaussians,
