@@ -9,3 +9,6 @@ preprocess/
 *.tmp
 *.swp
 *.DS_Store
+
+checkpoints/
+results/
