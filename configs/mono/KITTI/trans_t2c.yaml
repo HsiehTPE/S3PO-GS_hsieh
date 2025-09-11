@@ -1,0 +1,31 @@
+inherit_from: "configs/mono/KITTI/base_config.yaml"
+
+Dataset:
+  dataset_path: "datasets/KITTI/trans_t2_c_tum_old"
+  begin: 0
+  end: 235
+  Calibration:
+    fx: 769.2436
+    fy: 769.2436
+    cx: 679.5448
+    cy: 543.9759
+    k1: -0.0008127706
+    k2: 6.2567424e-07
+    p1: -1.1966218e-09
+    p2: 0.0
+    k3: 0.0
+    width: 1350
+    height: 1080
+    depth_scale: 200.0
+    distorted: False
+
+opt_params:
+    position_lr_init: 0.0016
+    position_lr_final: 0.00016
+    init_lr: 6
+
+Training:
+    #alpha: 0.98
+    mapping_itr_nosingle: 10
+
+

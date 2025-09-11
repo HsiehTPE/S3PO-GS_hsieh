@@ -26,6 +26,26 @@ from gaussian_splatting.utils.loss_utils import ssim
 from gaussian_splatting.utils.system_utils import mkdir_p
 from utils.logging_utils import Log
 
+# 兼容旧版 evo
+import copy
+from evo.core import trajectory as traj_mod
+def evaluate_evo(poses_gt, poses_est, plot_dir, label, monocular=False):
+    ## Plot
+    traj_ref = PosePath3D(poses_se3=poses_gt)
+    traj_est = PosePath3D(poses_se3=poses_est)
+
+    # --- 关键改动：新版优先，用实例方法 align；旧版回退到 align_trajectory ---
+    try:
+        traj_est_aligned = copy.deepcopy(traj_est)
+        # monocular=True 时做 Sim(3) 对齐（含全局尺度）
+        traj_est_aligned.align(traj_ref, correct_scale=monocular)
+    except AttributeError:
+        # 旧版 evo 兼容
+        traj_est_aligned = traj_mod.align_trajectory(
+            traj_est, traj_ref, correct_scale=monocular
+        )
+    # -----------------------------------------------------------------------
+
 def evaluate_evo(poses_gt, poses_est, plot_dir, label, monocular=False):
     ## Plot
     traj_ref = PosePath3D(poses_se3=poses_gt)
