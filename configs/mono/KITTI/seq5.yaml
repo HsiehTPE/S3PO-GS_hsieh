@@ -1,21 +1,21 @@
 inherit_from: "configs/mono/KITTI/base_config.yaml"
 
 Dataset:
-  dataset_path: "datasets/KITTI/trans_t2_c_tum_old"
+  dataset_path: "datasets/KITTI/seq5"
   begin: 0
   end: 235
   Calibration:
-    fx: 769.2436
-    fy: 769.2436
-    cx: 679.5448
-    cy: 543.9759
-    k1: -0.0008127706
-    k2: 6.2567424e-07
-    p1: -1.1966218e-09
+    fx: 472.649551
+    fy: 472.649551
+    cx: 320.000000
+    cy: 256.000000
+    k1: 0
+    k2: 0
+    p1: 0
     p2: 0.0
     k3: 0.0
-    width: 1350
-    height: 1080
+    width: 640
+    height: 512
     depth_scale: 100.0
     distorted: False
 

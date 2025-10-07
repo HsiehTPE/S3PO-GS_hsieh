@@ -189,11 +189,13 @@ class TUMParser:
 
         image_list = os.path.join(datapath, "rgb.txt")
         depth_list = os.path.join(datapath, "depth.txt")
-        mono_depth_list = os.path.join(datapath, "mono_depth.txt")
+        # mono_depth_list = os.path.join(datapath, "mono_depth.txt")
+        mono_depth_list = os.path.join(datapath, "rgb.txt")
 
         image_data = self.parse_list(image_list)
         depth_data = self.parse_list(depth_list)
-        mono_depth_data = self.parse_list(mono_depth_list)
+        # mono_depth_data = self.parse_list(mono_depth_list)
+        mono_depth_data = self.parse_list(image_list)
         pose_data = self.parse_list(pose_list, skiprows=1)
         pose_vecs = pose_data[:, 0:].astype(np.float64)
 
@@ -201,7 +203,7 @@ class TUMParser:
         tstamp_depth = depth_data[:, 0].astype(np.float64)
         tstamp_pose = pose_data[:, 0].astype(np.float64)
         associations = self.associate_frames(tstamp_image, tstamp_depth, tstamp_pose)
-        print("标号:", tstamp_image[471])
+        # print("标号:", tstamp_image[471])
 
         indicies = [0]
         for i in range(1, len(associations)):
@@ -216,7 +218,8 @@ class TUMParser:
             (i, j, k) = associations[ix]
             self.color_paths += [os.path.join(datapath, image_data[i, 1])]
             self.depth_paths += [os.path.join(datapath, depth_data[j, 1])]
-            self.mono_depth_paths += [os.path.join(datapath, mono_depth_data[i, 1])]
+            # self.mono_depth_paths += [os.path.join(datapath, mono_depth_data[i, 1])]
+            self.mono_depth_paths += [os.path.join(datapath, image_data[i, 1])]
 
             quat = pose_vecs[k][4:]     
             trans = pose_vecs[k][1:4]   
@@ -228,7 +231,8 @@ class TUMParser:
                 "file_path": str(os.path.join(datapath, image_data[i, 1])),
                 "depth_path": str(os.path.join(datapath, depth_data[j, 1])),
                 "transform_matrix": (np.linalg.inv(T)).tolist(),
-                "mono_depth_path": str(os.path.join(datapath, mono_depth_data[i, 1]))
+                # "mono_depth_path": str(os.path.join(datapath, mono_depth_data[i, 1]))
+                "mono_depth_path": str(os.path.join(datapath, image_data[i, 1]))
             }
 
             self.frames.append(frame)
@@ -377,7 +381,8 @@ class TUMDataset(MonocularDataset):
         self.color_paths = parser.color_paths
         self.depth_paths = parser.depth_paths
         self.poses = parser.poses
-        self.mono_depth_paths = parser.mono_depth_paths
+        # self.mono_depth_paths = parser.mono_depth_paths
+        self.mono_depth_paths = parser.color_paths
 
 class ReplicaDataset(MonocularDataset):
     def __init__(self, args, path, config):

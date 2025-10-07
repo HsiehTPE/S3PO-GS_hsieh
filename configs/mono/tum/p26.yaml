@@ -1,0 +1,32 @@
+inherit_from: "configs/mono/tum/base_config.yaml"
+
+Dataset:
+  dataset_path: "../hsieh_datasets/c3vd/P2_6_tum"
+  Calibration:
+    fx: 1033.894287109375
+    fy: 1033.7147216796875
+    cx: 604.578857421875
+    cy: 514.9761962890625
+    k1: 0
+    k2: 0
+    p1: 0
+    p2: 0
+    k3: 0
+    width: 1280
+    height: 1024
+    depth_scale: 200.0
+    distorted: True
+
+opt_params:
+    position_lr_init: 0.0016
+    position_lr_final: 0.00016
+    init_lr: 6
+
+Training:
+    alpha: 0.98
+    mapping_itr_nosingle: 10
+
+# width: 1280
+# height: 1024
+# # With distortion (fx, fy, cx, cy, k1, k2, p1, p2)
+# calibration:  [1033.894287109375, 1033.7147216796875, 604.578857421875, 514.9761962890625,0, 0, 0, 0, 0]
