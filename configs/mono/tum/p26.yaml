@@ -12,8 +12,8 @@ Dataset:
     p1: 0
     p2: 0
     k3: 0
-    width: 1280
-    height: 1024
+    width: 640
+    height: 512
     depth_scale: 200.0
     distorted: True
 

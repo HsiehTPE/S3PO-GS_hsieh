@@ -148,7 +148,7 @@ class FrontEnd(mp.Process):
         depth_map = self.add_new_keyframe(cur_frame_idx, init=True)
         self.request_init(cur_frame_idx, viewpoint, depth_map)      # Request initialization and push related info into the backend queue
         self.reset = False
-   
+
     def tracking(self, cur_frame_idx, viewpoint):    
         ##=====================Pointmap Anchored Pose Estimation(PAPE)=====================
         # The previous frame
@@ -215,6 +215,15 @@ class FrontEnd(mp.Process):
         )
 
         pose_optimizer = torch.optim.Adam(opt_params)
+        
+        # delta_gt = (viewpoint.T_gt - prev.T_gt)
+        # noise_ratio = torch.rand(1).item() * 0.04 + 0.01  # 随机生成 [0.01, 0.05] 之间的值
+        # noise = torch.randn_like(delta_gt) * delta_gt.norm() * noise_ratio  # 高斯噪声，幅度为 delta_gt 范数的 1%-5%
+        # delta_gt_noisy = delta_gt + noise
+        # viewpoint.T = prev.T + delta_gt_noisy
+        delta_gt = (viewpoint.T_gt - prev.T_gt).float()
+        norm_gt = delta_gt.norm() + 1e-6
+
         for tracking_itr in range(self.tracking_itr_num):
             render_pkg = render(
                 viewpoint, self.gaussians, self.pipeline_params, self.background
@@ -228,6 +237,27 @@ class FrontEnd(mp.Process):
             loss_tracking = get_loss_tracking(
                 self.config, image, depth, opacity, viewpoint
             )
+
+            # by hsieh:
+            # ============ 添加平移方向的正则化 ============
+            lambda_reg_T = 0.2  
+            if lambda_reg_T > 0:
+                # 计算运动方向（统一转为 float32）
+                delta_current = (viewpoint.T - prev.T).float()
+                # 归一化并计算余弦相似度
+                norm_current = delta_current.norm() + 1e-6
+                cos_sim = torch.dot(delta_current / norm_current, delta_gt / norm_gt).clamp(-1.0, 1.0)
+                
+                # 方向余弦损失
+                loss_reg_T = 1.0 - cos_sim
+                
+                # 自适应权重
+                with torch.no_grad():
+                    adaptive_weight = lambda_reg_T * loss_tracking.item() / (loss_reg_T.item() + 1e-6)
+                
+                loss_tracking = loss_tracking + adaptive_weight * loss_reg_T
+
+            # ==========================================+
             loss_tracking.backward()
 
             with torch.no_grad():
@@ -403,6 +433,8 @@ class FrontEnd(mp.Process):
 
             if self.frontend_queue.empty():    
                 tic.record()
+                # print("Dataset length:", len(self.dataset))
+                # exit() # hsieh: issue already appears here
                 if cur_frame_idx >= len(self.dataset):  # If current frame index exceeds dataset length, evaluate results, save, and exit the loop
                     if self.save_results:
                         eval_ate(
@@ -499,6 +531,9 @@ class FrontEnd(mp.Process):
                     )
                 if self.single_thread:      
                     create_kf = check_time and create_kf
+                # # hsieh: debug keyframe selection
+                # if cur_frame_idx % 5 == 0:
+                #     cur_frame_idx == True
                 if create_kf:     
                     self.current_window, removed = self.add_to_window(
                         cur_frame_idx,

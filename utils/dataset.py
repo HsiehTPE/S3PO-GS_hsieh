@@ -155,8 +155,12 @@ class ReplicaParser:
 class TUMParser:
     def __init__(self, input_folder):   
         self.input_folder = input_folder
-        self.load_poses(self.input_folder, frame_rate=32)
+        # self.load_poses(self.input_folder, frame_rate=32)
+        self.load_poses(self.input_folder, frame_rate=-1)
+        # hsieh: set frame_rate to -1 to use all frames
         self.n_img = len(self.color_paths)
+        # print("Number of images:", self.n_img)
+        # exit() # hsieh: issue already appears here
 
     def parse_list(self, filepath, skiprows=0):
         data = np.loadtxt(filepath, delimiter=" ", dtype=np.unicode_, skiprows=skiprows)
@@ -211,7 +215,8 @@ class TUMParser:
             t1 = tstamp_image[associations[i][0]]
             if t1 - t0 > 1.0 / frame_rate:
                 indicies += [i]
-
+        # print(f"Selected {len(indicies)} frames from {len(associations)} frames")
+        # exit() # hsieh: issue appears here ！
         self.color_paths, self.poses, self.depth_paths, self.frames, self.mono_depth_paths = [], [], [], [], []
 
         for ix in indicies:
@@ -381,6 +386,8 @@ class TUMDataset(MonocularDataset):
         self.color_paths = parser.color_paths
         self.depth_paths = parser.depth_paths
         self.poses = parser.poses
+        # print("Dataset length:", self.num_imgs)
+        # exit() # hsieh: issue already appears here
         # self.mono_depth_paths = parser.mono_depth_paths
         self.mono_depth_paths = parser.color_paths
 
