@@ -94,3 +94,61 @@ model_params:
 pipeline_params:
   convert_SHs_python: False
   compute_cov3D_python: False
+
+# config for deformable gaussian splatting
+deform_gs:
+  # default:
+  # ModelParams:
+  extra_mark: "endonerf"
+  camera_extent: 10
+
+  # OptimizationParams:
+  coarse_iterations: 0
+  deformation_lr_init: 0.00016
+  deformation_lr_final: 0.0000016
+  deformation_lr_delay_mult: 0.01
+  iterations: 3000
+  percent_dense: 0.01
+  opacity_reset_interval: 3000
+  position_lr_max_steps: 4000
+  prune_interval: 3000
+
+  # ModelHiddenParams:
+  curve_num: 17
+  ch_num: 10
+  init_param: 0.01
+
+
+  # OptimizationParams
+  dataloader: False
+  iterations : 30000
+  position_lr_init : 0.00016
+  position_lr_final : 0.0000016
+  position_lr_delay_mult : 0.01
+  position_lr_max_steps : 20000
+  deformation_lr_init : 0.00016
+  deformation_lr_final : 0.000016
+  deformation_lr_delay_mult : 0.01
+  # grid_lr_init : 0.0016
+  # grid_lr_final : 0.00016
+
+  feature_lr : 0.0025
+  opacity_lr : 0.05
+  scaling_lr : 0.005
+  rotation_lr : 0.001
+  percent_dense : 0.01
+  weight_constraint_init: 1
+  weight_constraint_after : 0.2
+  weight_decay_iteration : 5000
+  opacity_reset_interval : 3000
+  densification_interval : 100
+  densify_from_iter : 500
+  densify_until_iter : 15000
+  densify_grad_threshold_coarse : 0.0002
+  densify_grad_threshold_fine_init : 0.0002
+  densify_grad_threshold_after : 0.0002
+  pruning_from_iter : 500
+  pruning_interval : 100
+  opacity_threshold_coarse : 0.005
+  opacity_threshold_fine_init : 0.005
+  opacity_threshold_fine_after : 0.005

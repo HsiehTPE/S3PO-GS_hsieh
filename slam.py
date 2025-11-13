@@ -14,6 +14,7 @@ from munch import munchify
 
 import wandb
 from gaussian_splatting.scene.gaussian_model import GaussianModel
+from gaussian_splatting.scene.flexible_deform_model import XGaussianModel # hsieh: For flexible deformation model
 from gaussian_splatting.utils.system_utils import mkdir_p
 from gui import gui_utils, slam_gui
 from utils.config_utils import load_config
@@ -58,6 +59,10 @@ class SLAM:
         model_params.sh_degree = 3 if self.use_spherical_harmonics else 0
 
         self.gaussians = GaussianModel(model_params.sh_degree, config=self.config)
+        # hsieh: modified for flexible deformation model in s3pogs
+        self.xgaussians = XGaussianModel(model_params.sh_degree, self.config)
+        # self.xgaussians.create_from_pcd()
+        # exit(0)
         self.gaussians.init_lr(self.config["opt_params"]["init_lr"])        
         self.dataset = load_dataset(
             model_params, model_params.source_path, config=config
