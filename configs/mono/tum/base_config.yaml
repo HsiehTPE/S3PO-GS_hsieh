@@ -62,6 +62,10 @@ opt_params:
   position_lr_final: 0.00016
   position_lr_delay_mult: 0.01
   position_lr_max_steps: 30000
+  # hsieh: added for deformable gs
+  deformation_lr_init : 0.00016
+  deformation_lr_final : 0.000016
+  deformation_lr_delay_mult : 0.01
   feature_lr: 0.0025
   opacity_lr: 0.05
   scaling_lr: 0.001

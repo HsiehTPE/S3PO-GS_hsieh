@@ -22,6 +22,7 @@ class BackEnd(mp.Process):
         super().__init__()
         self.config = config
         self.gaussians = None
+        self.xgaussians = None
         self.pipeline_params = None
         self.opt_params = None
         self.background = None
@@ -86,6 +87,8 @@ class BackEnd(mp.Process):
 
         # remove all gaussians
         self.gaussians.prune_points(self.gaussians.unique_kfIDs >= 0)
+        # hsieh: 
+        # self.xgaussians.prune_points(masks)
         # remove everything from the queues
         while not self.backend_queue.empty():
             self.backend_queue.get()

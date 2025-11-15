@@ -62,6 +62,7 @@ class SLAM:
         # hsieh: modified for flexible deformation model in s3pogs
         self.xgaussians = XGaussianModel(model_params.sh_degree, self.config)
         # self.xgaussians.create_from_pcd()
+        self.xgaussians.training_setup(opt_params)
         # exit(0)
         self.gaussians.init_lr(self.config["opt_params"]["init_lr"])        
         self.dataset = load_dataset(
@@ -94,6 +95,7 @@ class SLAM:
         self.frontend.set_hyperparams()
 
         self.backend.gaussians = self.gaussians
+        # self.backend.gaussians = self.xgaussians   # hsieh: modified for flexible deformation model in s3pogs
         self.backend.background = self.background
         self.backend.cameras_extent = 6.0           
         self.backend.pipeline_params = self.pipeline_params
